@@ -20,6 +20,9 @@ vulnerability. Written in our own words from ideas in Trail of Bits
 | Broad scope accepted, narrowed later | Third-party account connects (OAuth) | Dangerous scopes (withdraw, transfer, admin) refused at connect, not filtered at call time. |
 | Dev database URL accepted in production (SQLite, localhost) | App boot | Boot must refuse it. |
 | `except Exception: pass` around auth or policy | Any gate | A failed check that continues is fail-open. |
+| Empty trusted-proxy allowlist defaults to "trust all private ranges" | Proxy identity / client IP extraction | An empty allowlist must mean "trust no proxy"; unsigned `x-real-ip` / `x-forwarded-for` headers must never be trusted from an untrusted peer, and production boot should require an explicit allowlist. |
+| Client-supplied `x-real-ip` / `x-forwarded-for` used as a rate-limit or admission key | Per-IP rate limiters, signed public owner tokens | Rate-limit scopes and admission tokens must derive from the socket peer or a signed proxy envelope the app itself issued, and token verification must re-bind the scope to the requester. |
+| URL-borne single-use token redeemed with session cookies set | `/verify-email?token=...` or magic verification links | Verification may mark the account verified but must not open an authenticated session; sessions open only from an explicit login. Otherwise the link is a login-CSRF vector. |
 
 ## Sharp edges in our own APIs
 

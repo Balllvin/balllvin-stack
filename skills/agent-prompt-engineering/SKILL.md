@@ -19,6 +19,7 @@ Write instructions in the imperative and the active voice. One instruction per s
 - Right altitude. Specific enough to guide, loose enough for heuristics. No brittle if-else scripts. No "do the right thing".
 - Persona labels alone do not change output. Give docs, examples, and do/don'ts instead.
 - Never cap an agent tool loop with a turn budget, round cap, `max_turns`, or remaining wall-clock budget. The model runs until it stops. A single provider call may have a fixed hang timeout. Hard tasks need many rounds. Do not add `TURN_BUDGET`.
+- A rejected output is a defect in the prompt or context that produced it, not a result to edit by hand. Fix that input and re-run before editing the result manually; a hand edit ships only with the input change that prevents recurrence.
 
 ## Prompt language
 
@@ -31,6 +32,7 @@ Write instructions in the imperative and the active voice. One instruction per s
 - Keep articles. Telegraphic fragments parse wrong.
 - No all-caps threats. No fake stakes.
 - A rule must be checkable from the output. "Be concise" is not. "No preamble" is.
+- A cast example shows the schema first, not a hand-validated cast.
 - If a rule needs a long justification, the rule is wrong. Cut it until it is obvious.
 
 Slop: "Additionally, it's important to ensure that you thoroughly explore the codebase in order to gain a comprehensive understanding before you consider making any changes."
@@ -40,6 +42,45 @@ Direct: "Before you edit, read the files that own the behavior you change. List 
 Slop: "You may want to leverage the available testing utilities to validate your implementation where possible."
 
 Direct: "Run the test suite after each change. If a test fails, fix the code before you continue."
+
+### Explainer prompts: simple first
+
+For any prompt that makes a model explain something to a reader (reports, memos, summaries, briefs):
+
+- Require the plainest true answer first: one or two sentences a smart outsider could repeat. Then expand one layer at a time.
+- Tell the model to collapse related items into one idea before naming them. A flat list is not an explanation.
+- Ban openers that state what something is not, or state the obvious. Tell it to name the thing and its parts directly.
+- Put the core point (why this matters, why it wins) in the first paragraph, not late in the text.
+- Shorter prompts steer better. Keep the few rules that change output, and cut lens lists the model would cover anyway. A long checklist makes the model over-specify early.
+- Do not paste bad and good output samples into the prompt. The model copies their wording. Describe the move instead.
+- Ban analogies and metaphor labels ("toll booth", "flywheel") when the reader needs the mechanism. Ask for the product, the customer, the payment, the number.
+- Titles are the plain question the section answers. The model mirrors a vague or clever title in its prose.
+
+### Prompts sent to many agents
+
+A tier prompt that launches many coding agents in parallel fails differently from a one-off prompt. Each ambiguity is paid once per agent:
+
+- **End state, not permission.** Say what "finished" looks like and that the agent keeps going until then. "Never end with a question" beats "ask if unsure". List only the few things that require a human (secrets, money, production changes, product decisions the spec leaves open).
+- **Ownership includes regression repair.** Own every failure your change causes. In a parallel layer, report an out-of-Owns repair to the parent with the exact path and failing test so the parent updates the collision map before assigning repair; never edit a sibling's file.
+- **"Stop" needs a scope.** "Stop and report" gets misread as "quit the whole task". Write "that step stops; post Found: and do the rest".
+- **Name exact baseline exceptions.** Link test IDs, immutable main SHA, and reproduction evidence, or state that no exception is granted. Never refer to an undefined known-red list or treat unrun tests as clean.
+- **Say which tests to run.** Explicitly specify focused tests for changed files rather than asking every worker to run slow whole-repo CI.
+- **Excuse menus become defaults.** A report template like "Not implemented (blocked, out of scope, needs owner)" teaches the agent to pick one. Ask for the reason in the agent's words, and make `Merge-ready: yes/no` its own line.
+- **Name where evidence goes.** Give the exact path or upload mechanism for screenshots and artifacts rather than saying "attach in the PR".
+- **Shared resources need rules.** Parallel agents fill the disk and kill each other's servers. Instruct each worker to delete only its own build output, wait only on its own PIDs, and clean up before its final message.
+- **One report, edited in place.** Say "edit your existing comment" rather than "post a comment".
+- **Put setup in the prompt.** One setup block (venv, package deps, local DB) saves repeated wasted discovery per agent.
+
+## Audit a prompt or skill before it ships
+
+1. Read it as the model will: the assembled text, with the files it points at.
+2. For every rule, ask: is it checkable from the output? What is the cheapest wrong reading? Rewrite until the wrong reading is hard.
+3. Look for conflicts between rules ("stay in scope" vs "tests must pass"). Say which wins.
+4. Dry-run it on two or three real tasks with a cheap model. Read the transcripts for questions asked, early stops, skipped steps, and repeated expensive commands. Each one is a prompt bug.
+5. For documentation compaction, inventory unheaded paragraphs, tables, and code fences as well as bullets. Compare every distinct condition, failure state, limit, and required check against its keeper; anchor counts alone do not prove preservation.
+6. Check the action default. Implementors get "infer the most useful action and proceed; use tools to find missing details". Critics and researchers get "read and report; do not edit". A child agent has no user channel: it reports `Blocked: <what>, tried: <what>` instead of asking.
+7. Check emphasis. One emphasized line at most. All-caps `"CRITICAL"` and `"MUST"` on current models cause over-triggering and stalls; give the reason instead.
+8. Cut by A/B. A line stays only if removing it changes behavior on a task that exercises it. Run the task with and without the line; if outputs match, delete the line.
 
 ### Token economy
 
@@ -319,7 +360,8 @@ When cleaning AI diffs, load in this order:
 ## How to use
 
 - Invoke on agent-design tasks.
-- Combine with create-skill when building a new skill.
+- Combine with `references/prompt-engineering.md` for tiered LLM API prompts and `references/workflow-from-chats.md` when extracting workflow rules from chat transcripts.
+- Combine with create-skill when building a new skill (`name` <= 64 chars lowercase/hyphens, `description` <= 1024 chars trigger-only, body < 500 lines with `references/<topic>.md` one level deep, `disable-model-invocation: true` for side-effect skills).
 - Combine with `/unslop` when the agent can load it. Bake when it cannot.
 - Combine with orchestrate-subagents when the prompt assigns workers. Parent keeps the user task and primary files.
 

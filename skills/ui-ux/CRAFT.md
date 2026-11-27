@@ -1,6 +1,6 @@
 # Craft polish
 
-Use with `SKILL.md` and the app architect. The architect owns app tokens and platform behavior. These values guide interaction; they do not require terminal chrome.
+Use with `SKILL.md` and the app's UI architecture doc. That doc owns app tokens and platform behavior. These values guide interaction; they do not require terminal chrome.
 
 Adapted from Jakub Krehel's better-ui and Emil Kowalski's design-engineering guidance.
 
@@ -25,7 +25,7 @@ Name the feedback or state relationship the motion explains. Skip motion that de
 
 | Interaction | Default |
 | --- | --- |
-| Keyboard shortcut, ticker commit, live value | Immediate; never wait for a transition |
+| Keyboard shortcut, live value commit | Immediate; never wait for a transition |
 | Small control press | 100-160ms, scale around 0.97 |
 | Hover or selected state | Immediate or 100-150ms color/opacity |
 | Tooltip or small menu | 125-200ms, anchored at its trigger |
@@ -33,11 +33,11 @@ Name the feedback or state relationship the motion explains. Skip motion that de
 
 Use `cubic-bezier(0.23, 1, 0.32, 1)` for entry. Move reversible layers along the same path. Keep dialogs centered and popovers anchored. Start scale near 0.97, never zero.
 
-Use interruptible CSS transitions for presses and toggles. Native uses SwiftUI or AppKit behavior. Prefer transform and opacity for movement. Name exact properties; never `transition: all`. Do not animate layout dimensions for routine polish.
+Use interruptible CSS transitions for presses and toggles. For mounting and unmounting popups, menus, and sheets, drive transitions with `data-starting-style` and `data-ending-style` presence attributes while waiting for `getAnimations()` before unmount (immediate under `prefers-reduced-motion`). Native uses SwiftUI or AppKit behavior. Prefer `transform`, `opacity`, and `clip-path` for compositor-safe movement. Name exact properties; never `transition: all`. Do not animate layout dimensions for routine polish.
 
-Do not scale data rows, navigation, tables, or reading content. Do not stagger financial values, charts, or evidence. Occasional menus and sheets can move modestly while content remains legible.
+Do not scale data rows, navigation, tables, or reading content. Do not stagger financial values, charts, or evidence. Avoid idle bobbing loops and never leave content stuck at `opacity: 0` at rest. Occasional menus and sheets can move modestly while content remains legible.
 
-Keep subsequent toolbar tooltips immediate after the first one opens. Keep input available throughout transitions. Avoid mount-state flags and new dependencies when CSS expresses the behavior.
+Keep subsequent toolbar tooltips immediate after the first one opens. Keep input available throughout transitions, marking exiting layers `inert` so focus never lands inside an element animating away. Avoid ad-hoc mount-state flags and new external animation dependencies when shared presence attributes express the behavior.
 
 Honor reduced motion at the animated selector's specificity. Remove movement, overshoot, and loops. Keep a static state cue or brief fade. Theme changes must not trail through several color transitions.
 

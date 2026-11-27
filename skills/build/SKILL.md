@@ -28,6 +28,7 @@ These change behavior on every task, so they live here and not only in a referen
 - **Copy playbook steps verbatim.** When a playbook or checklist applies, copy its steps into the todo list word for word. A skipped step stays listed as `skip: <reason>`. Never drop one silently.
 - **No is an acceptable answer.** Say no to scope that does not earn its place, and disagree with a wrong suggestion with the technical reason. No performative agreement.
 - **Cut what does not change behavior.** In code, prompts, and skill text, delete any instruction, guard, or line whose removal changes nothing. Keep a line only if you can name what goes wrong without it.
+- **Slop is a failed test.** Name which test in [deslop](references/deslop.md) fails, with file and line, before you call code slop. Review module boundaries, data shapes, and migrations before local style. Never trade product speed for a cleaner shape.
 
 ## 1. The build ladder
 
@@ -49,6 +50,8 @@ Then stop at the first rung that holds:
 
 Two rungs work: take the higher one. Two stdlib options of the same size: take the one correct on edge cases. Lazy means less code, not a flimsier algorithm.
 
+Net lines and repeated-literal gates follow [code-quality](references/code-quality.md). Cite added and deleted from `git diff --numstat` when you compare diffs.
+
 **Bug fix means root cause.** Grep every caller of the function before you edit it. One guard in the shared function is a smaller diff than one per caller, and patching only the path the ticket names leaves the siblings broken.
 
 **Never simplify away** trust-boundary validation, error handling that prevents data loss, security, accessibility basics, or anything explicitly requested. If the user insists on the full version, build it without re-arguing.
@@ -57,7 +60,7 @@ Preserve accepted inputs and error behavior when cutting work. A byte or count m
 
 **Non-trivial logic leaves one runnable check** (a branch, loop, parser, money or security path). One small test or assert-based self-check. Trivial one-liners need none.
 
-**Mark deliberate shortcuts** with `ponytail: <ceiling>, <upgrade path>` (`# ponytail: global lock, per-account locks if throughput matters`). The marker makes simplicity read as intent, and `/ponytail-debt` harvests them.
+**Mark deliberate shortcuts** in the PR description: `ponytail: <ceiling>, <upgrade path>` (global lock, per-account locks if throughput matters). Do not put that marker in a code comment. `/ponytail-debt` harvests leftover in-code markers so they can be deleted.
 
 **Output:** code first, then at most three short lines: what was skipped and when to add it. A paragraph defending a simplification is complexity smuggled back in as prose. Requested explanations are not debt.
 
@@ -139,7 +142,7 @@ One line each. Read the leaf in `references/principle-<name>.md` when a principl
 
 **A test must fail when the behavior breaks.** Before keeping a test, ask: would it still pass if every imported function returned `undefined`? If yes, it proves nothing. The five shapes that fail this check are weak assertions (`toBeDefined`, `not.toThrow`), mock-or-absence only (`toHaveBeenCalled`, `toEqual([])`), self-referential expected values (`expect(f(a)).toBe(f(a))`), constant pins (`expect(LIMITS.max).toBe(8)`), and fixture asserting fixture. Fix: call the subject with one concrete input and assert the literal output or observable effect. Assert the payload a mock received, not that it was called.
 
-**Revert-proof.** A new or retargeted test must go red when the product change is reverted. Prove it at least once: revert the fix (in a copy, not a loop over the live checkout), run the test, watch it fail for the intended reason, restore. A test that stays green on revert is the "add tests that stay green if the change is reverted" failure `AGENTS.md` forbids.
+**Revert-proof.** A new or retargeted test must go red when the product change is reverted. Prove it at least once: revert the fix (in a copy, not a loop over the live checkout), run the test, watch it fail for the intended reason, restore. Deslop test 3 and the stronger domain check (planted mutants, exhaustive enumeration for small pure policy gates) are in [tests](references/tests.md).
 
 **TDD on bugs with a cheap local target** (`/tdd`):
 1. Name intended vs current behavior and the smallest reproduction.
@@ -168,7 +171,7 @@ Two failed fixes on one premise means stop and run `attack-the-premise`; three m
 
 ## 4. Deslop and comments
 
-Run deslop on the branch diff before you call a coding change done. It is a filter, not a rewrite. Keep the file's existing voice.
+Run deslop on the branch diff before you call a coding change done. It is a filter, not a rewrite. Keep the file's existing voice. The five tests and where to spend attention are in [deslop](references/deslop.md). The list below is the cleanup pass.
 
 Remove:
 - Comments that restate the next line, narrate "what", section banners, emoji, changelog notes, docstrings that repeat the name.
@@ -233,7 +236,10 @@ Every file under `references/` is listed. Read the file when the "Read when" col
 | (its template) | `references/complexity-optimizer/references/report-template.md` | Writing the complexity report |
 | (its scanner) | `references/complexity-optimizer/scripts/analyze_complexity.py` | First-pass hotspot list |
 | code-simplifier | `references/code-simplifier.md` | Clarity pass on freshly written code |
+| code-quality | `references/code-quality.md` | Slop tests, DRY, deep modules, file-size gates, logging |
 | deslop | `references/deslop.md` | Full slop checklist and see-also routing |
+| tests | `references/tests.md` | Revert-proof tests, planted mutants, pure-gate enumeration |
+| port-proof | `references/port-proof.md` | Bench-first, byte-compare parity, 10 new inputs for language/UI rewrites |
 | no-comments | `references/no-comments.md` | Running the comment reviewer and its accept/reject rules |
 | full-output-enforcement | `references/full-output-enforcement.md` | Long deliverables that must not be truncated |
 | check-compiler-errors | `references/check-compiler-errors.md` | Compile or type-check failures block progress |

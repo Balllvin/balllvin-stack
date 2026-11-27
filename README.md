@@ -1,6 +1,6 @@
 # Skill stack
 
-Portable skills for AI agents: prompting, coding, reviewing, shipping, UI, writing, selling, and a few research and journaling routines. Each folder under `skills/` is one skill with a `SKILL.md` entry point and optional `references/` loaded on demand.
+Portable skills for AI agents: prompting, coding, reviewing, formal verification, provider routing, plugins, shipping, UI, writing, selling, and a few research and journaling routines. Each folder under `skills/` is one skill with a `SKILL.md` entry point and optional `references/` loaded on demand.
 
 ## Skills
 
@@ -8,12 +8,15 @@ Portable skills for AI agents: prompting, coding, reviewing, shipping, UI, writi
 
 | Skill | What it does |
 | --- | --- |
-| [agent-prompt-engineering](skills/agent-prompt-engineering/SKILL.md) | Write and cut prompts, skills, and rules: direct language, one term per concept, a checkable done test, lean output contracts. |
-| [orchestrate-subagents](skills/orchestrate-subagents/SKILL.md) | The parent keeps the task and primary files; children take bounded work with allowed files, forbidden files, and a done test. |
-| [build](skills/build/SKILL.md) | How to build: delete, reuse, then write; fast-by-design rules, TDD, debugging, design principles, long-run working style. |
-| [audit](skills/audit/SKILL.md) | Every review lens in one place: diff review, review waves, over-engineering, silent failures, performance, tests, types. |
-| [security](skills/security/SKILL.md) | Scanners first, then threat model, discovery, validation, attack path, report, and fix, with agent and supply-chain threats. |
-| [layered-spec](skills/layered-spec/SKILL.md) | A spec-only plan PR for multi-surface work: layered plan, parallel slices with zero file overlap, copy-paste implementer prompts. |
+| [agent-prompt-engineering](skills/agent-prompt-engineering/SKILL.md) | Write and cut prompts, skills, and rules: direct language, one term per concept, tiered prompts, A/B cut checks, lean output contracts. |
+| [orchestrate-subagents](skills/orchestrate-subagents/SKILL.md) | The parent keeps the task and primary files; children take bounded work with allowed files, forbidden files, review-after-task, and a done test. |
+| [build](skills/build/SKILL.md) | How to build: delete, reuse, then write; fast-by-design rules, revert-proof TDD, slop tests, code quality, port proof, debugging, design principles. |
+| [audit](skills/audit/SKILL.md) | Every review lens in one place: diff review, review waves, untangle + silenced checks, UI polish matrix, formal verification, full tests, performance, test audit. |
+| [formal-verify](skills/formal-verify/SKILL.md) | Model-check state-machine, lease, and concurrency races with TLA+/TLC, anti-vacuity canaries, counterexample replay, and exhaustive pure policy gates. |
+| [agent-plugins](skills/agent-plugins/SKILL.md) | Author and test portable agent plugins: single YAML manifest as source of truth, model card loop, typed failures (`ok`/`work_failed`/`plugin_error`), self-test, held-out eval. |
+| [provider-routing](skills/provider-routing/SKILL.md) | LLM and audio/voice routing: live-API-only model facts, Gate A/B reasoning-effort and Pareto checks, ZDR/privacy, transport-only retries, prompt caching, xAI SDK deadlines. |
+| [security](skills/security/SKILL.md) | Scanners first ("not assessed" never clean), snapshot evidence & closure, fail-open defaults, threat model, validation, attack path, fix verification, agent/supply-chain threats. |
+| [layered-spec](skills/layered-spec/SKILL.md) | A self-contained spec-only plan PR for multi-surface work: layered plan, parallel slices with zero overlap or `Needs:`-graph DAG, model-agnostic tier prompts, `check-slices.py`. |
 | [ship-verify](skills/ship-verify/SKILL.md) | From finished diff to merged, deployed, and verified: branches, PRs, CI, conflicts, review comments, smoke tests. |
 | [use-the-whole-pack](skills/use-the-whole-pack/SKILL.md) | Apply every skill in an installed skill pack, name any you skip, and route product-repo tasks through the right playbook. |
 | [coding-harness-router](skills/coding-harness-router/SKILL.md) | Start a coding run: a config-driven router picks harness and model, then the pack's matching playbook runs the work. |
@@ -31,7 +34,7 @@ Portable skills for AI agents: prompting, coding, reviewing, shipping, UI, writi
 
 | Skill | What it does |
 | --- | --- |
-| [ui-ux](skills/ui-ux/SKILL.md) | Everything a person sees: data-first screens, honest states, motion, copy, landings, brand assets, rendered verification. |
+| [ui-ux](skills/ui-ux/SKILL.md) | Everything a person sees: app-screen taste (`TASTE.md`), SSR-first headless islands & boolean `data-*` kernel (`BEHAVIORS.md`), honest states, motion, copy, landings, scene variety, rendered verification. |
 | [ui-anti-slop](skills/ui-anti-slop/SKILL.md) | Concrete do/don't rules for web UI, design tokens, a pre-ship checklist, and a budget script that fails when slop counts rise. |
 | [scroll-film-site](skills/scroll-film-site/SKILL.md) | Build a personal site that scrolls like a film: CSS scroll-driven scenes first, reduced-motion fallback, light motion budget. |
 

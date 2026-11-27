@@ -14,6 +14,8 @@ A failure the user cannot see and the logs cannot explain is a bug, even when no
 - **Failure sold as a different failure:** a catch-all that turns a runner crash into "Could not update the automation", a 401 shown as "Try again" forever, a failed load shown as "No runs yet".
 - **Lost:** `asyncio.create_task` whose exception nobody reads, a Swift `Task {}` whose error is dropped, a cleanup error that replaces the original error.
 - **Mislabelled:** a real failure logged at `info`, an expected skip logged at `error`, an error state rendered with `role="status"`.
+- **Faked:** production code that returns a mock, stub, sample or hard-coded value when the real source fails, so the screen looks live.
+- **Exhausted quietly:** a retry that gives up and returns as if it succeeded, or a Rust `.unwrap_or_default()` or `let _ =` on a `Result` that hides why the value is empty.
 - **Unbounded:** a retry loop or cooldown with no cap that turns one bad response into an outage (for example trusting any `Retry-After`).
 
 ## Rules the fix must meet

@@ -2,18 +2,19 @@
 name: audit
 description: >-
   Use whenever code needs review or an audit, even when no skill is named: a
-  diff, branch, PR, or the whole repo, your own diff before calling a coding
-  task done, and replies to review comments. Triggers: "review this PR",
-  "code review", "audit the repo", "what can we delete", "is this
-  over-engineered", "why is this slow", "are these tests any good", "find
-  swallowed errors", "find similar bugs", "are there other places like this",
-  "thermos", "review waves", "weekly audit", a pasted PR URL, and the old
-  names /thermos, /thermo-nuclear-review, /thermo-nuclear-code-quality-review,
+  diff, branch, PR, or the whole repo, your own diff before marking a coding
+  task done, and replies to review comments. Modes: Diff review, Thermos,
+  Review waves, Repo audit, Untangle, Full Tests, UI Polish, Formal
+  verification, Differential review, Variant analysis, PR review reply, and
+  Reviewer handoff. Also: "what can we delete", "is this over-engineered",
+  "why is this slow", "are these tests any good", "find swallowed errors",
+  "find similar bugs", "prove this state machine", a pasted PR URL, and
+  /thermos, /thermo-nuclear-review, /thermo-nuclear-code-quality-review,
   /review-waves, /ponytail-audit, /ponytail-review, /silent-failure-hunter,
-  /performance-profiler, /test-audit, /code-review,
-  /pr-test-analyzer, /type-design-analyzer, /receiving-code-review,
-  /requesting-code-review, /make-pr-easy-to-review, /pr-review-canvas,
-  /differential-review, /variant-analysis.
+  /performance-profiler, /test-audit, /code-review, /pr-test-analyzer,
+  /type-design-analyzer, /receiving-code-review, /requesting-code-review,
+  /make-pr-easy-to-review, /pr-review-canvas, /differential-review,
+  /variant-analysis, /untangle-codebase.
 ---
 
 # Audit
@@ -26,7 +27,9 @@ reference only for depth.
 
 **Evidence or label.** Every finding carries its evidence (the `path:line`, the command and its output, the measurement) or a label in the same sentence: measured, inferred, or guess. A guess is never reported at high or critical severity. (pstack, Lauren Tan, MIT.)
 
-**Measured number.** A speed, coverage, or error-rate number in a review is not evidence until the Evidence line names the limiter and a run rules out errors, skipped or cached work, an untuned side, noise, and work that never ran. Reading the code is not that run. See [Explain the number](../build/references/principle-explain-the-number.md) and [Benchmark checklist](../build/references/benchmark-checklist.md). (pstack 0.15.15.)
+**Slop calls.** A review note that says "slop" names the failed test in `../build/references/deslop.md`, the file, and the line. Cleanup, review order, and net lines follow `../build/references/code-quality.md`. Flag new code comments. Allowed exceptions: license headers, tool directives with a reason, shebangs, and generated files.
+
+**Measured number.** A speed, coverage, or error-rate number in a review is not evidence until the Evidence line names the limiter and a run rules out errors, skipped or cached work, an untuned side, noise, and work that never ran. Reading the code is not that run. A research trial uses the six controls in [Benchmark checklist](../build/references/benchmark-checklist.md). See [Explain the number](../build/references/principle-explain-the-number.md) and that checklist. (pstack 0.15.15.)
 
 Security-specific scans (threat models, validation, attack paths) live in
 the `security` hub. This hub's bug lens catches security regressions in a
@@ -38,22 +41,33 @@ diff; a real security scan goes to `../security/SKILL.md`.
 |------|------|-------|
 | Diff review | A branch, PR, or local diff | Lenses over `git diff origin/main...HEAD` or `gh pr diff <n>`. Report only added or changed lines, plus old code the diff now depends on. |
 | Thermos | "thermos", "double thermo", structural diffs, files near 500 lines | Two critics in parallel: bug lens and structure lens. Synthesize yourself. |
-| Review waves | A long PR is done and about to ship | Up to five parallel critics, parent verifies and fixes between waves. At most three waves. Wave 2+ re-runs only critics that had real findings (plus UI/UX when fixes touched UI). |
-| Repo audit | "audit the repo", "find bloat", test-suite pruning, perf hunt | Scope by app path, never the repo root. Rank biggest cut or biggest cost first. One-shot report, applies nothing unless asked. |
+| Review waves | A long PR is done and about to ship | Up to five parallel critics, parent verifies and fixes between waves. Stop after wave 1 only if clean; otherwise run at least three waves and continue until a wave has zero critical, high, or medium findings and at most two low nits. Wave 2+ re-runs only critics that had real findings (plus UI/UX on every wave when UI changed). |
+| Repo audit | "audit the repo", "full health check", "find bloat", test-suite pruning, perf hunt | Scope by app path, never the repo root. Rank biggest cut or biggest cost first. Health-check steps below. |
+| Untangle | "untangle", leaky abstractions, copy-paste, workarounds, useless wrappers | List every place pieces that change together are apart or pieces that don't are tied, redesign, fix the whole list, and ratchet down silenced checks (`# type: ignore`, `# noqa`, `@ts-expect-error`, `eslint-disable`, `as any`). See `references/untangle.md`. |
+| Full tests | "run all tests", "fix all failing tests" | Run every app's test suite in dependency order (backend first), fix code or test root causes without skipping or loosening, and verify on a combined tree. See `references/full-tests.md`. |
+| UI polish | "polish the app", "ui polish", "test at different widths", "touch and 3G pass" | Walk each web app in a real browser across the 7-viewport + touch + Slow 3G CDP matrix, fix root causes, capture before/after screenshots. See `references/ui-polish.md`. |
+| Formal verification | "prove this state machine", concurrency/lease/lock races | Model-check step orderings with TLA+/TLC and an anti-vacuity canary, or enumerate pure policy gates. See `references/formal-verification.md` and `../formal-verify/SKILL.md`. |
 | Weekly audit | A scheduled weekly sweep | Three proposal reviews (pstack, ponytail, thermos) on latest `origin/main`, each read-only, then one consolidator PR with the findings two reviews agree on, then the owner's merge gate. |
 | Differential review | A security-relevant or risky diff, however small | Triage by what the code touches, not size. See `references/differential-review.md`. |
 | Variant analysis | A bug was just confirmed | Hunt its siblings before closing. See `references/differential-review.md`. |
 | PR review reply | Review comments arrived on your PR | Verify each comment against the code before changing anything. One summary: implemented, not implemented on purpose, checks. Resolve threads. |
 | Reviewer handoff | Making a PR easy to read, or dispatching a reviewer | Tidy description, separate mechanical from core files, or render a walkthrough page. |
 
-Why the wave cap: wave 1 finds, wave 2 confirms fixes and catches
-regressions, wave 3 exists only if wave 2 still found real bugs. Past that,
-critics start restating themselves and the cost outruns the signal. A clean
-critic is not re-run for ceremony.
+Why the wave rule: a clean wave 1 needs no extra pass, so it stops right away. Once wave 1 finds problems, running at least three waves verifies fixes and catches second-order regressions, and continuing past wave 3 handles leftovers until zero critical, high, or medium findings and at most two low nits remain. Clean critics are not re-run for ceremony.
 
 For a repository audit, the review-wave cap does not cap coverage. Track inventoried, semantically read, generated/vendor and unreviewed paths separately. A signatures/AST census is not semantic review. Reopen uncovered families or missing cache identities; a lean verdict names the paths and rejected cuts that support it.
 
 For schema/index coverage, compare model declarations, explicit bootstrap registration, migration history and actual registered metadata. Transitive API imports can hide missing registration; fixture metadata is not proof of the full live schema. Verify unique-constraint backing before treating a paired index as duplicate.
+
+### Repo audit: health-check steps
+
+Find what's broken, inconsistent, inefficient, no longer needed, or based on a weak assumption. Rank by leverage: impact over effort, discounted by confidence. Every finding needs `path:line` evidence, or the Evidence-or-label rule at the top of this skill.
+
+Prefer delete, then simplify, then optimize, then automate. Don't cut corners on behavior people rely on. The over-engineering lens owns the cut tags; use it rather than inventing a second list.
+
+By-design behavior is not a finding until you prove it isn't intended. Intended breakage the author clearly meant stays out, as in the bugs lens.
+
+Report first. If the ask includes fixing (a full health check does): fix only what you're sure about and can prove with a test. Add the test first if it's missing. Don't touch what you can't test. List everything else for review, and list what you deleted and why.
 
 Tiny diffs (a few lines, one owner) skip fan-out: run the bug lens yourself.
 
@@ -120,7 +134,9 @@ One line per finding, biggest cut first:
 - `stdlib:` hand-rolled thing the standard library ships. Name it.
 - `native:` dependency or code doing what the platform already does.
 - `yagni:` one-implementation interface, config nobody sets, one-caller layer.
-- `shrink:` same logic, fewer lines. Show the shorter form.
+- `shrink:` same logic, fewer lines. Show the shorter form. A shorter
+  shape that only matches the reviewer's taste, with no deleted branch or
+  reused helper, is not a finding.
 
 Deletion estimates deduplicate exact file/ranges and separate production/test gross removal from net replacement estimates. Do not sum aliases, whole Owns sets or the sizes of files that merely need editing.
 
@@ -286,6 +302,10 @@ the inline thread, not a top-level comment.
 | `/make-pr-easy-to-review` | `references/make-pr-easy-to-review.md` | Reviewer handoff: description, history cleanup |
 | `/differential-review`, `/variant-analysis` | `references/differential-review.md` | Differential review and variant analysis modes |
 | `/pr-review-canvas` | `references/pr-review-canvas/index.md` (with `styles.css`, `renderer.js`, `template.html`) | Reviewer handoff: HTML walkthrough |
+| `/untangle-codebase` | `references/untangle.md` | Untangle mode + silenced-check ratchet |
+| `/ui-polish` | `references/ui-polish.md` | 7-viewport + touch + Slow 3G browser polish |
+| `/formal-verify` | `references/formal-verification.md`, `../formal-verify/SKILL.md` | Model-checking state machines, leases, and locks |
+| `/full-tests` | `references/full-tests.md` | Ordered whole-repo test suite runs |
 
 Related homes outside this hub: ponytail and radical-simplification design
 rules in `../build/`, deslop and tdd in `../build/`, UI review in

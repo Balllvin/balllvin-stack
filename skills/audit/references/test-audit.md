@@ -40,7 +40,7 @@ For Native Undo/Redo, mount the production window, root and command wiring with 
 
 ## Junk list
 
-- No assertion, or an assertion that cannot fail (self-comparison, expected value produced by the code under test).
+- No assertion, or an assertion that cannot fail (self-comparison, expected value produced by the code under test, `assert True`, `assert x == x`, empty test bodies, `expect(x).toBe(x)`). Read each test and verify it goes red if the behavior under it breaks.
 - Reads source files as text and greps names, imports, or class strings. Survives real regressions, breaks on renames.
 - Copies of a shared test into every app that ships the same generated file. The generator's `--check` already proves the bytes match.
 - Monkeypatches a private helper (`_utcnow`, `_resolve_user_id`) so any refactor breaks it. Patch the clock or the boundary instead.

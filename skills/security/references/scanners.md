@@ -21,17 +21,19 @@ brew install osv-scanner pip-audit cargo-audit cargo-deny gitleaks trufflehog se
 | cargo deny | `cargo deny --manifest-path crates/Cargo.toml check advisories bans sources licenses` | Diagnostics with a code (`vulnerability`, `banned`, `license-not-encountered`, `source-not-allowed`). | Missing, or no `deny.toml` (see `supply-chain.md`). |
 | gitleaks | `gitleaks git . --redact --report-format json --report-path <out>` | `RuleID`, `File`, `Commit`, `StartLine`. `--redact` keeps the value out of the report. Rotate first, then decide on history rewrite. Obvious fake fixtures go in `.gitleaksignore` by fingerprint. | Missing. A shallow clone limits history coverage. |
 | trufflehog | `trufflehog git file://$PWD --only-verified --json --no-update` | `DetectorName`, file, commit. `--only-verified` means the credential worked against the live provider: treat as an incident. Never paste the `Raw` field anywhere. | Missing, or offline (verification needs network). |
-| semgrep | `semgrep scan --metrics=off --json --config p/python --config p/typescript --config p/react --config p/nextjs --config p/secrets --config p/rust <source dirs>` | `.results[]`: `check_id`, `path`, `start.line`, `extra.severity`. `.errors[]` lists skipped files; those are not assessed. | Missing, or registry download failed (offline). |
+| semgrep | `uv tool run --from semgrep==<SEMGREP_VERSION> semgrep scan --metrics=off --json --timeout 30 --config p/python --config p/typescript --config p/react --config p/nextjs --config p/secrets --config p/rust <source dirs>` | `.results[]`: `check_id`, `path`, `start.line`, `extra.severity`. A `PartialParsing` error with spans skips only those spans; turn each such file into a `semgrep partial-parse <path>` fingerprint to accept like a finding. Any other `.errors[]` entry or a timeout skips the file: not assessed. | `uv` missing, or the pinned Semgrep or registry download failed (offline). Pin `SEMGREP_VERSION` rather than relying on an unpinned system package. |
 | zizmor | `zizmor --format json .github/workflows` | `ident` (for example `template-injection`, `excessive-permissions`, `unpinned-uses`) and the workflow path. | Missing. |
 
 ## What counts as "not assessed"
 
-- The tool is missing, crashed, or printed nothing parseable.
+Every scanner must be explicitly assessed. An unrun, failed, or offline tool is never clean:
+
+- The tool is missing, crashed, timed out, or printed nothing parseable.
 - It ran offline when it needs a live database (osv, npm, pip-audit, trufflehog, semgrep registry).
 - A lockfile or path was skipped (osv stderr, semgrep `.errors`).
 - It scanned a moving target (unpinned requirements) and you report it as the deployed state.
 
-Report each as "not assessed: <tool> <reason>". Never as clean. An absent measurement is not a pass, and missing data is not evidence of risk either.
+Report each as `"not assessed: <tool> <reason>"`. Never accept a baseline with unassessed scanners marked clean. An absent measurement is not a pass, and missing data is not evidence of risk either.
 
 ## Triage a new fingerprint
 

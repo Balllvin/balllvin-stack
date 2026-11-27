@@ -38,6 +38,19 @@ Call the verdict inconclusive when you claim a difference but cannot name the li
 
 Keep one primary number in the pull request body. [Opening a PR](poteto-mode/playbooks/opening-a-pr.md) owns that briefing. Put the runs, the range, and the limiter evidence in a linked artifact or a notes file.
 
+## Research trial
+
+One writer owns a research trial: this checklist. Other hubs point here. Do not add a second evaluation, memory, or attribution system.
+
+A trial keeps these controls. A report that drops one is not a result.
+
+1. Positive guard. One case that must pass for the claimed reason.
+2. Negative guard. One case that must fail for the claimed reason.
+3. Held-out labels. Labels the trial did not use to tune the method.
+4. Actual work counts. Count the work that ran. A proxy is not the work.
+5. Source-reading scope. A source-reading check stays only as the cheapest guard of a user-facing key, byte, or path.
+6. License notice. Copied method text keeps its license notice.
+
 ## Where this sits
 
 [Perf issue](poteto-mode/playbooks/perf-issue.md) finds and fixes slowness. Run this checklist on its baseline before that playbook plans from the baseline. Run it on every number after that.

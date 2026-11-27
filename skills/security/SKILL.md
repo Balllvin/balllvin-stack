@@ -7,6 +7,10 @@ description: Use for any application security work - security review of a diff o
 
 Security work is scanners first, then a phased judgment pipeline. This page gives the threat-model template, picks the reference per task, and sets the evidence rule. General code review lives in `../audit/SKILL.md`.
 
+## Audit scope and durable evidence
+
+A focused review stays focused. For full audits, retained scan reports, or candidate validation, also read `references/snapshot-evidence-and-closure.md` and `references/security-audit-evidence.md`. They add pinned snapshot citations, explicit coverage gaps, independent three-verdict adjudication (`confirmed`, `needs_validation`, `rejected`), paired runtime controls, machine-checked audit bundles, and immutable completed manifests. Never infer fix authorization from an audit request; requested fixes and verify-only checks use `references/security-fix-verification.md`.
+
 ## Threat model on one screen
 
 Write this for your app before the first review and keep it in the repo (for example `docs/threat-model.md` or a section of `AGENTS.md`).
@@ -27,7 +31,8 @@ Agent risks in detail: `references/agent-threats.md`.
 | Task | Read |
 |------|------|
 | Diff or PR review ("is this safe?") | `references/scanners.md` (run what applies), then `references/security-review.md`; agent or tool changes add `references/agent-threats.md`; Rust changes add `references/rust-review.md` |
-| Repo sweep or audit | `references/scanners.md` (run all), then the phase pipeline below across every surface; cite `references/asvs-map.md` ids |
+| Repo sweep or audit | `references/scanners.md` (run all; every scanner assessed, never `"clean"` on unrun), `references/snapshot-evidence-and-closure.md`, `references/full-audit-confirmation.md`, then the phase pipeline below across every surface; cite `references/asvs-map.md` ids |
+| Validate, trace, or fix a finding | `references/security-audit-evidence.md`, `references/hunt-loop.md`, and for explicit fixes or verify-only checks `references/security-fix-verification.md` |
 | Dependency audit, CVE triage, new dependency | `references/scanners.md`, `references/supply-chain.md` |
 | Secrets or a leaked key | `references/scanners.md` (gitleaks, trufflehog). Rotate first; never paste the value |
 | Agent / LLM threat review | `references/agent-threats.md`, then `references/security-threat-model/index.md` |
@@ -122,4 +127,8 @@ Monthly refresh:
 | Rust review | `references/rust-review.md` | `unsafe`, FFI, panics, paths, local servers |
 | ASVS map | `references/asvs-map.md` | ASVS 5.0 chapters to owners |
 | hunt loop | `references/hunt-loop.md` | Forward trace, disprove, then a failing test |
+| snapshot evidence & closure | `references/snapshot-evidence-and-closure.md` | Pinned snapshots, coverage ledger, 3-verdict adjudication, paired controls, immutable bundles |
+| audit evidence | `references/security-audit-evidence.md` | Source-grounded evidence standard, triage, patch-risk, policy review |
+| full audit confirmation | `references/full-audit-confirmation.md` | Sandbox controls and independent confirmer bar |
+| fix & verification | `references/security-fix-verification.md` | Fix mode vs verify-only mode, stage boundary |
 | scan artifacts | `references/scan-artifacts.md` | Where scan outputs go |

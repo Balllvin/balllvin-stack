@@ -45,3 +45,11 @@ Report unavailable data as unavailable. A package with no advisory data is "not 
 - MCP tools come from your own tool definitions. A third-party MCP server is a new dependency.
 - Models: pinned routes with the privacy provider object. A new provider gets a data-retention and host review before first use.
 - Licenses: Apache and MIT copies keep their notice; CC-BY-SA sources are rewritten, not copied; sources with no license are not copied.
+
+## Installers and release feeds
+
+- An image or VM bootstrap that pipes a remote script into a shell (`curl ... | sh`) is a finding. Pin the binary by digest.
+- `npm install -g` of npm itself before the lockfile install is a finding. The lockfile install is the package manager.
+- A workflow that installs a tool by bare name is a finding when the repo already pins that tool. Name the pinned version, and add a hash when the repo stores one.
+- A release workflow that publishes without binding the feed key and the checked-out manifest is a finding.
+- If a workflow installs system packages (such as browser apt packages), pin those package versions in the workflow instead of adding an unpinned mirror.

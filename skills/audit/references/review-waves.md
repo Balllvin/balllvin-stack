@@ -1,15 +1,17 @@
 ---
 name: review-waves
-description: Multi-wave PR review with parallel critic subagents (ponytail-audit, bugs, code quality, UI/UX, reuse), parent verify-and-fix between waves, implementor workers for large finding lists, at most three waves, later waves re-run only the critics that found something. Use after a long PR is done, before ship.
+description: Multi-wave PR review with parallel critic subagents (ponytail-audit, bugs, code quality, UI/UX, reuse), parent verify-and-fix between waves, implementor workers for large finding lists. Stop after wave 1 only if clean; otherwise run at least three waves until zero critical/high/medium and at most two low nits, re-running only critics that found something (plus UI/UX every wave for UI changes). Use after a long PR or slice is built, before ship.
 ---
 
 # Review waves
 
 Repeated passes of parallel critics over a branch diff, with the parent
-verifying every finding and implementing the fixes between waves. Wave 1
-finds problems. Wave 2 confirms the fixes and catches regressions. Wave 3
-runs only if wave 2 still found real bugs. Never more than three. Reviewers never write code;
-implementor workers only touch their assigned disjoint slice.
+verifying every finding and implementing the fixes between waves. Stop after
+wave 1 only if wave 1 is clean. Otherwise run at least three waves and keep
+going until a wave returns zero critical, high, or medium findings and at most
+two low nits (wave 2 confirms fixes and catches regressions, wave 3+ verifies
+stability). Reviewers never write code; implementor workers only touch their
+assigned disjoint slice.
 
 ## Trigger
 
@@ -98,13 +100,14 @@ UI/UX critic reruns whenever the fixes touched UI. A critic that only
 re-states the previous wave without reading the new diff is not done;
 narrow and re-prompt.
 
-Stop when the rerun critics come back clean, or after wave 3. List anything
-still open in the PR under "Not done", with the reason. If critic subagents
-are unavailable (usage limit, tool missing), run `/thermos` yourself and say
-so in the PR.
+Stop after wave 1 only if wave 1 returns clean. Otherwise run at least three
+waves and continue until a rerun wave returns zero critical, high, or medium
+findings and at most two low nits. List anything still open in the PR under
+"Not done", with the reason. If critic subagents are unavailable (usage
+limit, tool missing), run `/thermos` yourself and say so in the PR.
 
-Parent verifies wave output the same way every round. When a wave is
-clean, ship: rebase onto `origin/main`, push, open or update the PR.
+Parent verifies wave output the same way every round. When the exit bar holds,
+ship: rebase onto `origin/main`, push, open or update the PR.
 
 ## Guardrails
 
@@ -113,8 +116,9 @@ clean, ship: rebase onto `origin/main`, push, open or update the PR.
   the parent primary path. One writer per file.
 - If a finding needs a bigger behavior change (new serving path, new
   telemetry, GET-path writes), split it into a follow-up. Say so in the PR.
-- At most three waves. A wave with no real findings ends the loop; do not
-  re-run a clean critic for ceremony.
+- Stop after wave 1 only if clean; otherwise run at least three waves and
+  continue until zero critical, high, or medium findings and at most two low
+  nits remain. Do not re-run a clean critic for ceremony.
 - Keep the PR body honest: what broke, what changed for users, what this
   does not do, checks run and their limits.
 

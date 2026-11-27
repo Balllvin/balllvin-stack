@@ -60,6 +60,8 @@ Structure your analysis as:
 4. **Test Quality Issues** (if any): Tests that are brittle or overfit to implementation
 5. **Positive Observations**: What's well-tested and follows best practices
 
+**Tests that cannot fail:** Scan added or changed tests for tautologies and disabled tests (`assert True`, `assert x == x`, empty test bodies, `expect(x).toBe(x)`, skipped/xfailed tests) and treat each hit as critical. Check by hand that each new test goes red when the behavior breaks: revert the fix on a scratch change, or break one line, and watch the test fail. A test never seen failing proves nothing.
+
 **Important Considerations:**
 
 - Focus on tests that prevent real bugs, not academic completeness

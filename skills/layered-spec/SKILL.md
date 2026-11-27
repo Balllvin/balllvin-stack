@@ -5,30 +5,29 @@ description: Use before multi-surface product or workflow work, to write a layer
 
 # Layered spec
 
-The spec covers the problem, acceptance, surfaces, data contracts, non-goals, global constraints, review focus, and parallel homework layers of easy, easy-ui, hard, and hard-ui slices, with copy-paste tier prompts. It absorbed the old `/feature-spec`, `/startup-pressure-test`, and `/user-research-synthesis` skills; their detail is in `references/` (table under "Before the spec").
+The spec covers the problem, acceptance, surfaces, data contracts, non-goals, global constraints, review focus, and parallel layers of slices labeled `easy`, `easy-ui`, `hard`, or `hard-ui`, each with a one-line `Size:` reason and an `Owns:` line, plus the prompts for three ways to run it: manual, heavy orchestrator, and light orchestrator (plus optional `Schedule: needs-graph` for dependency-DAG runs). It absorbed `/feature-spec`, `/startup-pressure-test`, and `/user-research-synthesis`; their detail is in `references/`.
 
 Write the spec before the product. This thread ships markdown, not formatters, nodes, UI, or jobs.
 
-An implementer who only reads this skill plus the plan PR must know exactly how to kick a slice, where Owns live, and what they must not touch. They still choose how many layers and letters the work needs.
+An implementer who only reads this skill plus the plan PR must know exactly how to kick a slice, where Owns live, and what they must not touch. They still choose how many layers and letters the work needs. Write every slice for an executor that did not see this session and may run on a cheaper default model (`references/executor-plans.md`).
 
-Unslop the spec, the PR body, the layer map, and both copy-paste prompts. Read `../ui-ux/references/writing/unslop.md`. Do not invent a shorter list.
+Unslop the spec, the PR body, the layer map, and every prompt. Read `../ui-ux/references/writing/unslop.md`. Do not invent a shorter list.
 
 ## Done means
 
 All of these, or the spec is not done:
 
-- A file under `product-specs/` on a **draft** plan PR to `main`
+- A self-contained file `product-specs/<slug>.md` on a **draft** plan PR to `main` (multi-file splits stay optional for `Schedule: needs-graph` or mega-ports)
 - Spec sections Layer 0 through Layer 6 filled from live code (write `none` and why if a section does not apply)
 - One remaining way, named with live paths
-- Homework slices in Layer 6 named `L1A`, `L1B`, `L2A`, … each labeled easy, easy-ui, hard, or hard-ui
-- Every slice in a layer runs in parallel with every other slice in that layer. Nothing inside a layer waits on anything else inside it
-- File sets inside one homework layer do not overlap
-- A living `layers.md` (or a slice table in the spec) for writeback
-- Two short copy-paste prompts in the reply, with the plan PR URL filled
+- Slices in Layer 6 named `L1A`, `L1B`, `L2A`, … each labeled `easy`, `easy-ui`, `hard`, or `hard-ui`, with a `Size:` line that repeats the label and says why, and **zero `Model:` lines**
+- Every slice in a layer runs in parallel with every other slice in that layer (`Schedule: needs-graph` is the opt-in exception using explicit `Needs:` edges)
+- File sets inside one layer do not overlap (or follow `Needs:` edges under `Schedule: needs-graph`)
+- A top `## Implementation table` (`Slice | Label | Job | Status | PR | Est | Actual | Variance | Why`, or companion `layers.md` when split) with per-job compute accounting
+- `## Execution`, `## House rules`, and `## Prompts` filled in the plan with the plan PR URL once opened
 - No product code on the plan branch
 - Plan PR stays draft. Nobody merges it from an implementer thread
-- The spec self-review passed and a fresh reader could name each slice's owner files and done test
-- The plan states the Merge-ready gate
+- The spec self-review passed (including `scripts/check-slices.py` and the fresh-reader test) and states the Merge-ready gate
 
 ## Load first
 
@@ -51,12 +50,17 @@ A layered spec fixes how to build something. It cannot tell you whether to build
 | [startup-pressure-test](references/startup-pressure-test/index.md) | Verdict on whether the idea is worth building; [playbooks](references/startup-pressure-test/references/playbooks.md) per mode. |
 | [user-research-synthesis](references/user-research-synthesis.md) | Turning feedback, surveys, and interviews into ranked themes. |
 | [feature-spec](references/feature-spec.md) | PRD shape, user stories, MoSCoW, success metrics, acceptance criteria, scope creep. |
+| [execution](references/execution.md) | Heavy, light, and manual run formats, compute accounting, and House rules. |
+| [executor-plans](references/executor-plans.md) | Writing self-contained slices for a cheaper executor. |
+| [slice-review](references/slice-review.md) | Ownership, difficulty labels, and proof checks for Layer 6. |
+| [review-and-climb-layers](references/review-and-climb-layers.md) | Review layers (`Kind: review`), `bench`/`port`/`climb`, and state machines. |
+| [orchestrator-needs-graph](references/orchestrator-needs-graph.md), [needs-graph-prompts](references/needs-graph-prompts.md) | Opt-in `Schedule: needs-graph` DAG orchestration and prompts. |
 
 ## Path
 
 Put specs in a tracked folder. If `docs/` is gitignored scratch in your repo, never put a spec there. Never stage scratch folders or `worktrees/`.
 
-Write `product-specs/<slug>.md`. Split by responsibility if the file would cross 500 lines. Link parts from that folder. Keep a `layers.md` next to the spec for slice status.
+Write one self-contained `product-specs/<slug>.md` by default, with `## Implementation table` at the top and `## Execution`, `## House rules`, and `## Prompts` in the same file. Multi-file splits (`.layers.md`, `.prompts.md`, `.slices-lN.md`) stay optional for `Schedule: needs-graph` or mega-ports. Name split slice files so a sorted glob reads them in layer and letter order, link them from the overview, and pass every file to `check-slices.py`.
 
 ## Two numberings
 
@@ -224,6 +228,7 @@ Owns: <paths>
 Forbidden: <shared files, plus every other slice in this layer>
 Depends: none inside this layer (all earlier layers merged)
 Done when: <command that goes red if this slice is reverted>
+Size: hard. <one-line reason matching the label>
 Skills: <extra skills beyond the paste>
 ```
 

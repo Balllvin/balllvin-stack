@@ -104,7 +104,7 @@ Once you have the design read (Section 0) and dials (Section 1), pick the right 
 **One system per project.** Do not mix Fluent React with Carbon in the same tree. Do not import shadcn/ui components into a Material 3 app.
 
 ### 2.B When the brief is an aesthetic, not a system
-For these directions, there is **no single official package**. Build with native CSS + Tailwind + a maintained component library. Be honest in code comments about what is borrowed inspiration vs. official material.
+For these directions, there is **no single official package**. Build with native CSS + Tailwind + a maintained component library. Say in the PR description what is borrowed inspiration and what is official material. Do not put that note in a code comment.
 
 | Aesthetic | Honest implementation |
 |---|---|
@@ -1136,7 +1136,7 @@ A web approximation can use:
 - motion
 - strong contrast fallbacks
 
-But that is **web glassmorphism / frosted-glass approximation**, not official Apple Liquid Glass. Label it as such in comments.
+But that is **web glassmorphism / frosted-glass approximation**, not official Apple Liquid Glass. Say that in the PR description, not in a code comment.
 
 ### Safer web approximation skeleton
 

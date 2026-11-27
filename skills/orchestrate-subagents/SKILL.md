@@ -1,15 +1,25 @@
 ---
 name: orchestrate-subagents
-description: Parent keeps the user task and primary edits. Use only to assign bounded helper work including exploration, isolated slices, review, repair, verification, docs checks, or cross-surface audits. Do not hand the full user task to one sub-agent or to a set of workers. Skip for tiny edits, one-line fixes, simple command answers, or single-owner git and release steps.
+description: Use by default on non-trivial tasks so the parent keeps the user task and primary edits while assigning bounded helper work (exploration, audits, reviews, parallel independent slices, verification). Do not hand the full user task to one sub-agent or to a set of workers. Triggers: /orchestrate-subagents, /swarm, /arena, /codex-goal, "spawn agents", "fan out", "use subagents", "parallel workers", "keep going until done". Skip for tiny edits, one-line fixes, simple command answers, or single-owner git and release steps.
 ---
 
 # Orchestrate subagents
 
 Honor nearest repo instructions first. `AGENTS.md`, `README.md`, `lessons.md`, UI architect files, validation rules, branch and worktree policy.
 
-The parent is the implementor and the orchestrator. Sub-agents do parts. They do not do the whole job. They do not cover every product file while the parent only integrates.
+The parent is the implementor and the orchestrator. Sub-agents do parts. They do not do the whole job. They do not cover every product file while the parent only integrates. A bounded child follows its assigned delegation limit, including "no helpers"; reading this skill does not authorize descendants without explicit parent authorization.
 
 When `pstack` is present, read `HOUSE.md`. House overrides win. Unslop child prompts and parent notes. File pointers, not pasted dumps. Parent writes its own summary of child work. Fire a fresh child with consolidated scope instead of trusting a "done" resume.
+
+## Index
+
+| Reference | Load when |
+|---|---|
+| [delegation](references/delegation.md) | Who edits what: parent owns primary files, git, and PR; children get bounded parts. |
+| [codex-goal](references/codex-goal.md) | "Keep going until done": durable goal state with evidence and remaining work. |
+| [swarm](references/swarm.md) | User named `/swarm`: N parallel workers on slices or a race, one report. |
+| [arena](references/arena.md) | User named `/arena`: N candidates on one task, pick a base, graft the rest. |
+| [agent-prompt-engineering](../agent-prompt-engineering/SKILL.md) | Writing any child prompt, skill, or rule. |
 
 ## Operating model
 
@@ -135,6 +145,10 @@ Expected output:
 - Commands run, with pass or fail.
 - Risks and the next repair.
 - A recommendation, not a hedge.
+- Evidence or label on every claim, in the same sentence: the command and its output, a `path:line`, or the label `measured`, `inferred`, or `guess`. Never hand back a check you could have run.
+- Coverage: what you read in full, what you skimmed, what you skipped.
+Blocked: you cannot ask the user. Report `Blocked: <what>, tried: <what>` and do the rest.
+Long output: write it to <scratch path> and return a summary under <N> words.
 Ownership: Parent owns integration, conflicts, final verification, git, and PR.
 ```
 
@@ -152,6 +166,8 @@ Ownership: Parent owns integration, conflicts, final verification, git, and PR.
 
 ## Loop
 
+Copy the steps of any playbook you follow into your todo list verbatim. A step you skip stays listed as `skip: <reason>`. Why: a silently dropped step looks the same as a finished one.
+
 1. Explore. Map different surfaces when the file graph is unclear.
 2. Implement. Parent edits the primary path. Workers only on independent helper parts.
 3. Integrate. Reconcile assumptions. Run focused checks.
@@ -159,6 +175,15 @@ Ownership: Parent owns integration, conflicts, final verification, git, and PR.
 5. Repair. Parent first when the path is single-threaded. Else a narrow repair.
 6. Verify. Tests. A verifier for failures or coverage gaps.
 7. Repeat until the checks pass.
+
+### Review after every task
+
+Adapted from obra/superpowers `subagent-driven-development` (MIT).
+
+- After each worker task, a separate reviewer checks it before the next task starts: first against the task's spec (missing or extra work), then for code quality. The worker's self-review never replaces this. Why: the author reads what it meant to write.
+- Build the review input from the real range, `git diff <base>..HEAD` from the commit before the task. Never `HEAD~1`. Why: a multi-commit task gets silently truncated.
+- A finding goes back to the same worker, then the reviewer checks again. Loop until the reviewer passes it or the parent takes it over.
+- Never run two implementers on one checkout. A stuck worker gets something changed before the retry (more context, smaller task, different role); never resend the same prompt unchanged.
 
 Stop delegating when remaining work is one blocking path, agents would fight over the same files, local execution is faster, or the next prompt would equal the full user task.
 
@@ -168,9 +193,20 @@ Do not pass through a child's summary. Read the diff or findings. Write your own
 
 A vague child result is not done. Narrow the next pass or inspect the work yourself.
 
+A review that read a sample is not a review of the whole. Check the child's coverage line against the scope. When it skipped files, resume it on the rest or split the scope and send another child.
+
 Correct the delta only when a child is close. Do not re-prompt the whole task.
 
 After integrate, ask whether the output meets the done test. If not, name the miss and the smallest fix.
+
+A rejected child output is an input defect, not a file to edit. Fix the child prompt or the owning skill, reference, or check that produced it and re-run with that one change. Two re-runs are the limit before a hand patch is allowed, and a hand patch ships only with the input change that prevents recurrence.
+
+## Named patterns
+
+- **Orchestrator-workers (default).** Everything above.
+- **Swarm** ([reference](references/swarm.md)). Only when the user names it.
+- **Arena** ([reference](references/arena.md)). Only when the user names it, or one attempt would lock in the wrong shape.
+- **Codex goal** ([reference](references/codex-goal.md)). For "keep going until done": compact goal state, evidence discipline, completion audit.
 
 ## Anti-patterns
 
