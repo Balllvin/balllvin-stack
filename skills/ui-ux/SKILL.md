@@ -22,6 +22,17 @@ Make the app a clear, comfortable tool for research and decisions. Lead with the
 - **One owner per primitive.** Reuse shared page shells, formatters, icon sets, and error helpers across screens.
 - **Zero-dependency ratchet.** Never add a runtime UI or animation library when the headless kernel or CSS handles it (`BEHAVIORS.md`).
 
+## 6-step UI/UX SOP
+
+Before writing or restyling a screen, run these six steps in order:
+
+1. **Classify job and screen archetype:** Name the user decision and pick the archetype (`ops_console`, `split_workbench`, `focused_form`, `landing_showcase`, `genui_inline`, or `threejs_viewport`; see `TASTE.md`).
+2. **Lock user truth and states:** Trace real facts, requested workbench controls, loading skeletons, empty copy, `Couldn't load <thing>` + Retry errors, `data-agent-confirm` on destructive actions, and `data-agent-secret` on secrets.
+3. **Choose archetype geometry and focal hierarchy:** Use wide fluid canvases (`>= 1200px`) for `ops_console`, hairline-split 2-pane layouts for `split_workbench`, focused `560-680px` measures for `focused_form`, full-bleed live proof for `landing_showcase`, or `>= 70%` canvas for `threejs_viewport`. Reject both bloated AI-SaaS box-soup and sterile 1998 wireframe emptiness.
+4. **Set typography, alignment, and semantic color (`<= 3%`):** Separate scale cleanly, right-align `tabular-nums` for comparable numbers, reserve mono strictly for code/IDs/SQL/hashes, keep contrast `>= 4.5:1`, and reserve semantic color for critical status and primary actions.
+5. **Apply Motion Decision Matrix:** Keep `ops_console`, `genui_inline`, and data switches at `0ms`; limit micro-feedback to `100-160ms`; reserve `180-240ms` spatial transitions for transient drawers/modals and `250-450ms` expressive transitions for `landing_showcase`; ban `transition: all` and infinite working-surface loops; always ship `@media (prefers-reduced-motion: reduce)`.
+6. **Cut and verify:** Inspect `1440x900` and `390x844` (`>= 44px` tap targets), keyboard/focus recovery, honest error/empty states, zero slop tells, and zero sterile dead space.
+
 ## Start with the page's job
 
 Before editing, name the app, the object, the user's next decision, and the evidence needed for that decision.
@@ -56,6 +67,8 @@ For a large browse table (a watchlist, inbox, or catalog):
 - Keep dense tables useful on desktop. On phones, prioritize essential columns and contain horizontal scrolling inside the table.
 
 ## App comfort and visual craft
+
+High taste avoids both failure poles (`TASTE.md`): over-decorated AI-SaaS box-soup (eyebrows, card-in-card, pill walls, purple neon/glass, fake `Acme`/`99.99%` data) and under-crafted 1998 wireframe sterility (raw tables marooned in dead empty space, flat hierarchy with unemphasized `SEV-1` rows, ragged left-aligned numbers, missing workbench controls). Match layout and density to the screen archetype (`ops_console`, `split_workbench`, `focused_form`, `landing_showcase`, `genui_inline`, `threejs_viewport`):
 
 - Reuse each app's tokens, typography, controls, skeletons, and formatters.
 - Build hierarchy with spacing, readable type, alignment, and selective emphasis.
@@ -117,18 +130,13 @@ For screen switches, hidden panels, live progress or imports, read [reuse and wo
 
 ## Motion with a purpose
 
-Use motion to explain a press, open a temporary layer, connect related states, or prevent a jarring change.
+Use motion only for feedback or spatial context, following the `TASTE.md` Motion Decision Matrix:
 
-- Give frequent actions immediate feedback. Keyboard shortcuts and data commits must never wait for motion.
-- Use the durations, easing, and scale values in `CRAFT.md`.
-- Use interruptible CSS transitions for toggles and presses. Use native platform transitions in native apps.
-- Animate exact properties, usually `transform`, `opacity`, and `clip-path`. Never use `transition: all`.
-- Anchor menus to their trigger and keep dialogs centered. Scale only small press controls.
-- Keep live data (prices, counters) immediately legible. Do not stagger values or animate every page title.
-- Add modest motion to occasional sheets, menus, and meaningful state changes. Do not treat all animation as decoration.
-- Honor reduced motion at the same selector specificity. Remove movement; retain static feedback and brief fades when useful.
-- Stop persistent decorative loops. Never disable input until an animation finishes.
-- Do not add pointer-tracking state, scroll hijacking, ambient motion, or a new animation dependency for simple polish.
+- **Without animation (`0ms`):** `ops_console`, `genui_inline`, data tables, live numbers, and `split_workbench` data switches update immediately with zero entrance staggers or infinite decorative loops.
+- **Micro-feedback (`100-160ms`):** Hover wash (`@media (hover: hover) and (pointer: fine)`) and subtle `scale(0.98)` press; keyboard shortcuts and data commits never wait for motion.
+- **Spatial transitions (`180-240ms`):** `cubic-bezier(0.22, 1, 0.36, 1)` on `opacity` + `transform` ONLY for transient drawers, menus, sheets, and `focused_form` modals.
+- **Purposeful expressive (`250-450ms`):** Allowed on `landing_showcase` hero/demo transitions; compositor-only (`transform`, `opacity`, `clip-path`), non-blocking, never stuck at `opacity: 0`.
+- **Mandatory hygiene:** Never use `transition: all`; always pair any CSS transition or `@keyframes` with `@media (prefers-reduced-motion: reduce)` at equal specificity; never add pointer-tracking, scroll hijacking, or new animation libraries (`CRAFT.md`, `BEHAVIORS.md`).
 
 ## Web and native parity, chat surfaces
 

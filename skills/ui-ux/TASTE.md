@@ -10,6 +10,26 @@ Each screen answers one question first. Before building, say the question and th
 
 Then cut. Remove a word, a line, a box, or a section and look again. Keep the cut when nothing the person needs is gone. Placed space reads calm; leftover space reads unfinished.
 
+## High taste vs. bad UI/UX (both poles)
+
+High taste is intentional craft, effortless legibility, and domain-appropriate richness where every pixel earns its place: neither bloated AI-SaaS box-soup nor sterile, unfinished 1998 wireframe emptiness.
+
+- **Good UI:** Clear focal point above the fold; deliberate visual rhythm and full use of the canvas appropriate to the screen archetype; hierarchy via typography scale, weight, optical alignment, whitespace, and hairlines (not nested bordered cards); semantic color (`<= 3%` pixels) focused on high-signal data, status, and one primary CTA; crisp contrast (`>= 4.5:1`); right-aligned `tabular-nums` for comparable metrics; monospace strictly for code, IDs, SQL, and hashes.
+- **Bad UI Pole 1 (over-decorated slop):** Uppercase eyebrows, card-in-card nesting, bordered+filled panel spam, decorative pill walls, KPI icon-square grids, purple neon/glass chrome, fake placeholder data (`Acme`, `John Doe`, `99.99%`), marketing clichés (`Command Center`, `Seamless`, `Insights`), and em/en-dashes.
+- **Bad UI Pole 2 (under-crafted sterility / broken craft):** Raw unstyled tables marooned in ~70% dead empty space, flat hierarchy where critical alerts (`SEV-1`) look identical to routine rows, ragged left-aligned numbers, filler copy (`Showing 3 active records.`), clipped or overflowing mobile layouts, and ignoring requested workbench controls (such as omitting the query input on a SQL console).
+- **Good vs. bad UX:** Immediate clarity, recognizable affordances, 1-step primary job, `data-agent-confirm` on destructive actions, honest scoped states (`Couldn't load <thing>` + Retry without wiping valid data), instant response on frequent actions, and `390x844` parity (`>= 44px` tap targets). Reject hover-hidden primary actions, button clusters for filters, and blocking animations.
+
+## 6-archetype context-adaptive matrix
+
+| Archetype | Canvas and layout | Hierarchy and typography | Motion policy |
+| --- | --- | --- | --- |
+| `ops_console` (triage queues, trading blotters, cron/log/eviction monitors, reconciliation) | Wide fluid canvas (`>= 1200px`), compact `36-44px` row pitch, sticky header, segmented filter tabs, per-row + 1 primary action | Semantic status emphasis on critical rows (`SEV-1`, `502`, variance), right-aligned `tabular-nums`, mono IDs only | **NO entrance/row/number animations (`0ms`)**; instant sort/filter/commit; micro-feedback only (`100-140ms` hover wash on fine pointer, `scale(0.98)` press) |
+| `split_workbench` (SQL consoles, webhook/payload inspectors, diff viewers, schema runners) | 2-pane split (editor/list + live output/detail/diff) separated by hairline divider, stacks cleanly at `390px` | Mono editor/payload + sans labels, `Cmd/Ctrl+Enter` shortcut, right-aligned numeric results | **NO data-switch animation (`0ms`)**; subtle spatial transition (`180-240ms`, `cubic-bezier(0.22, 1, 0.36, 1)`) ONLY for transient drawers/popovers |
+| `focused_form` (settings, quota overrides, billing adjustments, key rotation modals) | Focused `560-680px` measure, top-aligned labels, inline validation, live computed preview | Destructive action separated + `data-agent-confirm` / `data-agent-secret` | **Micro + spatial (`120-200ms`)** toggle and modal/sheet transition (`opacity` + `translateY(4px) scale(0.98)`), instant under reduced motion |
+| `landing_showcase` (explicitly requested marketing, launch, portfolio, or product showcase) | Full-bleed focal visual or live interactive product proof above the fold (no 50/50 + 3-card icon grid) | Bold display-to-body contrast, `<= 25` word hero subcopy, single primary CTA, zero eyebrow stacks / fake logos | **Purposeful expressive motion ALLOWED (`250-450ms`, `cubic-bezier(0.22, 1, 0.36, 1)`)** for hero/demo transitions; compositor-only, non-blocking, never stuck at `opacity: 0`, full `prefers-reduced-motion: reduce` fallback |
+| `genui_inline` | Compact inline block, zero outer chrome | Direct markdown lead + table/chart/action row | **NO animation (`0ms`)** |
+| `threejs_viewport` | Viewport `>= 70%` canvas, quiet control strip | 3-point lighting + contact grid + PBR material contrast | **Damped orbital/object motion** gated by Play/Pause + `prefers-reduced-motion: reduce` |
+
 ## Hierarchy
 
 - The page title is a noun at the app's title size. No hero band, no tagline, no subtitle that repeats the title ("Runs a task you saved").
@@ -65,9 +85,19 @@ Then cut. Remove a word, a line, a box, or a section and look again. Keep the cu
 - Disabled controls look disabled and say why at the control when the reason is not obvious.
 - Status words are one or two plain words: `Error`, `Running`, `Paused`, `Done`. Not "Did not run because..." in the row; the reason goes on the detail page.
 
-## Motion
+## Motion decision matrix (with vs. without animation)
 
-App motion is feedback only: press, hover, a menu or sheet opening, a value that changed. No entrance animations on pages, rows, or numbers. Values in `CRAFT.md`.
+App motion is feedback or spatial context only. Never animate for decoration, never use `transition: all`, always animate compositor-safe properties (`transform`, `opacity`, `clip-path`), and always pair any CSS transitions or `@keyframes` with `@media (prefers-reduced-motion: reduce)`.
+
+| Surface or interaction | Motion allowance | Timing and rules |
+| --- | --- | --- |
+| `ops_console`, `genui_inline`, data tables, live numbers, row switches | **Without animation (`0ms`)** | Instant sort, filter, tab, and data updates. Zero entrance staggers, zero number counting, zero infinite pulse/bob loops. |
+| Frequent control feedback (hover, press, switch toggle) | **Micro-feedback (`100-160ms`)** | Fine-pointer hover wash (`@media (hover: hover) and (pointer: fine)`), subtle `scale(0.98)` press; commits never wait on motion. |
+| Transient layers (`split_workbench` drawers, `focused_form` modals/sheets, menus) | **Spatial transition (`180-240ms`)** | `cubic-bezier(0.22, 1, 0.36, 1)` on `opacity` + `translateY(4px) scale(0.98)`; instant fallback under `prefers-reduced-motion: reduce`. |
+| `landing_showcase` hero or interactive product proof | **Purposeful expressive (`250-450ms`)** | `cubic-bezier(0.22, 1, 0.36, 1)` compositor-only transitions; never blocks input, never stuck at `opacity: 0`, full `prefers-reduced-motion: reduce` fallback. |
+| `threejs_viewport` | **Gated orbital/object motion** | Damped movement with explicit Play/Pause control and immediate stop under `prefers-reduced-motion: reduce`. |
+
+Values and presence mechanics in `CRAFT.md` and `BEHAVIORS.md`.
 
 ## Copy
 
